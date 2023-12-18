@@ -7,3 +7,4 @@
 *.gguf
 
 data/presenters/
+data/rendered_audio/
