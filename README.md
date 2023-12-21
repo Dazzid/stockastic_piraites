@@ -1,4 +1,4 @@
-# stockastic_piraites 
+## Welcome to Stockastic Piraites! 🏴‍☠️🏴‍☠️🏴‍☠️ 🦜
 This is the main repository for the Stochastic Piraites Radio. 
 
 To download the Mistral model 
