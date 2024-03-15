@@ -106,7 +106,7 @@ def generate_music(session):
         "metadata_file": "suno/metadata2.json",
         "metadata_output": f"session/{number}_Music_0.json",
         "duration": 10,
-        "fade_duration": 5,
+        "fade_duration": 3,
         "tags": session["genre"],
     }
     suno_mix.main(args)
@@ -162,7 +162,7 @@ def generate_invocation(session):
 
 def generate_news(session):
     with open("rss_feeds.txt", "r") as f:
-        url = random.choice(f.read().split('\n'))
+        url = random.choice(f.read().split("\n"))
     print(url)
     feed = feedparser.parse(url)
 
@@ -206,14 +206,14 @@ def generate_ad(session):
 
 
 programs = {
-    "Music": {"function": generate_music, "duration": 5},
-    "Talk": {"function": generate_talk, "duration": 5},
-    "Intro": {"function": generate_intro, "duration": 1},
-    "Weather": {"function": generate_weather, "duration": 3},
-    "Callsign": {"function": generate_callsign, "duration": 1},
-    "Invocation": {"function": generate_invocation, "duration": 2},
-    "Advertisement": {"function": generate_ad, "duration": 1},
-    "News": {"function": generate_news, "duration": 1},
+    "Music": {"function": generate_music},
+    "Talk": {"function": generate_talk},
+    "Intro": {"function": generate_intro},
+    "Weather": {"function": generate_weather},
+    "Callsign": {"function": generate_callsign},
+    "Invocation": {"function": generate_invocation},
+    "Advertisement": {"function": generate_ad},
+    "News": {"function": generate_news},
 }
 
 schedule = [
