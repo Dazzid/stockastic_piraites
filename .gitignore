@@ -2,3 +2,6 @@
 *.wav
 *.mp4
 *__pycache__*
+session/*
+rendered/*
+complete/*
