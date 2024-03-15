@@ -1,11 +1,3 @@
-*.i
-*.ii
-*.gpu
-*.ptx
-*.cubin
-*.fatbin
-*.gguf
 *.mp3
-
-data/presenters/
-data/rendered_audio/
+*.wav
+*.mp4

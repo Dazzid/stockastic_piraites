@@ -1,17 +1,23 @@
-# Welcome to Stockastic Piraites! 🏴‍☠️🏴‍☠️🏴‍☠️ 🦜
-This is the main repository for the Stochastic Piraites Radio. 
+# Stochastic PAIrate Radio
 
-To download the Mistral model 
-- https://huggingface.co/TheBloke/Mistral-7B-v0.1-GGUF	
-  
-Choose:
-- mistral-7b-v0.1.Q4_K_M.gguf	Q4_K_M	4	4.37 GB	6.87 GB	medium, balanced quality - recommended
-- mistral-7b-v0.1.Q5_K_M.gguf	Q5_K_M	5	5.13 GB	7.63 GB	large, very low quality loss - recommended (it doesn't work well)
+To generate a new session:
+```
+sh radio.sh
+```
 
-Libraires:
-Torch, torchvision and torchaudio
+## Environment
 
-- pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
-- pip3 install transformers==4.31.0
-- pip install ctransformers
-- pip install pydub
+In a terminal:
+```
+python3 -m venv radio-env
+source radio-env/bin/activate
+pip install -r requirements.txt
+```
+
+## Use
+
+The folders `jingles` and `loops` contain pre-generated material to be used as jingles and background music respectively.
+The folder `suno` should contain the suno sogns to be used for the music mixes.
+The files `topics.txt` and `rss_feeds.txt` should contain one entry per line and are used for topics of conversation and rss URLs respectively.
+The generated session will be found in `complete/session.mp3`.
+
