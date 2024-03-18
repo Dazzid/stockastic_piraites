@@ -3,14 +3,17 @@ import random
 import librosa
 from collections import defaultdict
 import numpy as np
+import pydub as pb
+import pydub.effects as pbe
 import soundfile as sf
 
 
 def normalize(audio):
     return audio / np.max(np.abs(audio))
 
-if not 'complete' in os.listdir():
-    os.makedirs('complete')
+
+if not "complete" in os.listdir():
+    os.makedirs("complete")
 
 SAMPLE_RATE = 24000
 
@@ -25,27 +28,42 @@ for f in files:
 
 all_loops = os.listdir("loops")
 
-complete_audio = np.zeros((1))
+ramp_duration = 2000  # 1 second in milliseconds
+start_time = 2000  # 2 seconds in milliseconds
+threshold = -20.0  # Adjust the compression threshold (in dBFS) as needed
+ratio = 4.0  # Adjust the compression ratio as needed
+
+complete_audio = pb.AudioSegment.empty()
 for p in programs:
     programs[p].sort(key=lambda x: int(x.split(".")[0].split("_")[-1]))
-    audio = np.zeros((1))
+    audio = pb.AudioSegment.empty()
     for part in programs[p]:
-        a, _ = librosa.load(f"rendered/{part}", sr=SAMPLE_RATE)
-        a = normalize(a)
-        audio = np.concatenate((audio, a))
+        print(part)
+        a = pb.AudioSegment.from_file(f"rendered/{part}", part.split(".")[-1])
+        a = pbe.normalize(a)
+        audio += a
 
     program_type = part.split("_")[1]
     if program_type == "Advertisement" or program_type == "Talk":
-        loop, _ = librosa.load(f"loops/{random.choice(all_loops)}", sr=SAMPLE_RATE)
-        loop = normalize(loop)
-        background = np.tile(loop, 1 + len(audio) // len(loop))
-        background = background[: len(audio)]
-        audio *= 0.9
-        background *= 0.1
-        audio += background
-    complete_audio = np.concatenate((complete_audio, audio))
+        loop = pb.AudioSegment.from_file(f"loops/{random.choice(all_loops)}")
+        loop = pbe.normalize(loop)
+        loop *= 1 + round(audio.duration_seconds / loop.duration_seconds)
+        audio_before_ramp = loop[:start_time]
+        audio_ramp = loop[start_time : start_time + ramp_duration].fade_out(
+            ramp_duration
+        )
+        audio_after_ramp = loop[start_time + ramp_duration :]
+        audio_half_volume = audio_after_ramp - 14
+        background = audio_before_ramp + audio_ramp + audio_half_volume
 
-sf.write(f"complete/session.mp3", complete_audio, SAMPLE_RATE, format="mp3")
+        audio = pb.AudioSegment.silent(duration=start_time + ramp_duration) + audio
+        audio = pbe.compress_dynamic_range(audio, threshold=threshold, ratio=ratio)
+        audio = pbe.normalize(audio)
+        audio = audio.overlay(background)
+
+    complete_audio += audio
+
+complete_audio.export(f"complete/session.mp3", format="mp3")
 
 
 print(programs)

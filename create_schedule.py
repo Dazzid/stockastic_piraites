@@ -4,12 +4,12 @@ import os
 import shutil
 import re
 import random
-import nltk
 import torch
 import datetime
 import json
 import numpy as np
-from suno import suno_mix
+from songs.labels import all_labels
+from songs import create_mix
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -20,28 +20,7 @@ from transformers import (
     logging,
 )
 
-nltk.download("punkt")
-nltk.download("averaged_perceptron_tagger")
-
-with open("suno/metadata2.json", "r") as f:
-    styles = json.load(f)
-
-styles = [s["style"] for s in styles]
-styles = ", ".join(styles).lower()
-for s in string.punctuation.replace(",", ""):
-    styles = styles.replace(s, "")
-
-# print(styles)
-tokens = nltk.word_tokenize(styles)
-tokens = nltk.pos_tag(tokens)
-allowed_pos_tags = ["FW", "JJ", "JJR", "JJS", "NN", "NNS", "NNP", "NNPS"]
-tokens = list(filter(lambda x: x[1] in allowed_pos_tags, tokens))
-styles = list(map(lambda x: x[0], tokens))
-styles = np.unique(styles, return_counts=True)
-indexes = np.flip(np.argsort(styles[1]))
-styles = styles[0][indexes][styles[1][indexes] >= 25]
-
-
+styles = all_labels["jamendo"]
 device = "cuda"
 logging.set_verbosity_error()
 
@@ -102,14 +81,14 @@ def generate_talk(session):
 def generate_music(session):
     number = session["current_index"]
     args = {
-        "audio_output": f"rendered/{number}_Music_0.wav",
-        "metadata_file": "suno/metadata2.json",
-        "metadata_output": f"session/{number}_Music_0.json",
-        "duration": 10,
+        "filename": f"rendered/{number}_Music_0.wav",
+        "length": 10,
         "fade_duration": 3,
-        "tags": session["genre"],
+        "genre": session["genre"],
+        "classes": "jamendo",
+        "metadata_dir": "songs/metadata",
     }
-    suno_mix.main(args)
+    create_mix.main(args)
 
 
 def generate_intro(session):

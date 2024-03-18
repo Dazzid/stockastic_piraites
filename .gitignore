@@ -1,6 +1,7 @@
 *.mp3
 *.wav
 *.mp4
+*.pb
 *__pycache__*
 session/*
 rendered/*

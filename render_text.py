@@ -88,6 +88,6 @@ for s in speaker_3:
     text = s[2].replace("Philip:", "").replace("?", "?\n").replace("!", "!\n")
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
     if use_tortoise:
-        render_segment(text, speaker="geralt", output_path=name)
+        render_segment(text, speaker="tom", output_path=name)
     else:
         render_segment(text, speaker="Torcull Diarmuid", output_path=name)
