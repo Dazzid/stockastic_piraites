@@ -82,7 +82,7 @@ def generate_music(session):
     number = session["current_index"]
     args = {
         "filename": f"rendered/{number}_Music_0.wav",
-        "length": 10,
+        "length": MUSIC_MINUTES,
         "fade_duration": 3,
         "genre": session["genre"],
         "classes": "jamendo",
@@ -92,7 +92,7 @@ def generate_music(session):
 
 
 def generate_intro(session):
-    prompt = f"You are a radio conductor. Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. The segment should be 1 minute long and in English. Introduce the next segment, which is {session['next']}. Use the tag <narrator> to specify who the speaker is."
+    prompt = f"You are a radio conductor. Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. You are \"The Radio Guy\". Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. The segment should be 1 minute long and in English. Introduce the next segment, which is {session['next']}. Use the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -132,6 +132,11 @@ def generate_callsign(session):
     jingle = f'jingles/{random.choice(os.listdir("jingles"))}'
     shutil.copyfile(jingle, f"rendered/{number}_Callsign_0.wav")
 
+def generate_disclaimer(session):
+    number = session["current_index"]
+    disclaimer = f'complete/disclaimer.wav'
+    shutil.copyfile(disclaimer, f"rendered/{number}_Disclaimer_0.wav")
+
 
 def generate_invocation(session):
     # generate intro
@@ -149,7 +154,7 @@ def generate_news(session):
         [f"{e['published']} - {e['title']}\n{e['summary']}" for e in feed["entries"]]
     )
 
-    prompt = f"You are presenting the news as part of a radio program. The program is called Improbable News. Your name is The News Guy. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
+    prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is The News Guy. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -167,7 +172,7 @@ def generate_news(session):
 
 
 def generate_ad(session):
-    prompt = f"Create an advertisement for a fictional product in a radio program. State the product name and what it can be used for. You can include price, contact information, slogans as you wish. Make sure to make it different from previous ads. The advertisement should be in English and at most 1 minute long. Use the tag <narrator> to specify who the speaker is."
+    prompt = f"Create an advertisement for a fictional product in a radio program. State the product name and what it can be used for. You can include price, contact information, slogans as you wish. Make the ad relevant to the day's topic, which is {session['topic']}. The advertisement should be in English and at most 1 minute long. Use the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -193,6 +198,7 @@ programs = {
     "Invocation": {"function": generate_invocation},
     "Advertisement": {"function": generate_ad},
     "News": {"function": generate_news},
+    "Disclaimer": {"function": generate_disclaimer},
 }
 
 schedule = [
@@ -200,28 +206,30 @@ schedule = [
     "Intro",
     "Advertisement",
     "Talk",
-    "Music",
+    "Music 10",
     "Invocation",
     "Callsign",
     "Advertisement",
     "News",
     "Weather",
-    "Music",
+    "Music 10",
     "Callsign",
     "Advertisement",
-    "Music",
+    "Music 10",
     "Talk",
     "Callsign",
     "Advertisement",
     "Talk",
-    "Music",
+    "Music 10",
     "Talk",
     "Callsign",
 ]
 
+with open("schedule.txt", "r") as f:
+    schedule = list(filter(None, f.read().split("\n")))
 
 date = datetime.datetime.now()
-scheduled_in = datetime.timedelta(hours=1)
+scheduled_in = datetime.timedelta(minutes=30)
 session_date = date + scheduled_in
 
 with open("topics.txt", "r") as f:
@@ -240,7 +248,8 @@ print(session)
 
 session_schedule = list(filter(lambda x: (x != "Callsign"), schedule))
 session_schedule = [
-    s if s != "Music" else f"{session['genre']} music" for s in session_schedule
+    s if not s.startswith("Music") else f"{session['genre']} music"
+    for s in session_schedule
 ]
 session_schedule.append("end of the program")
 schedule_index = 0
@@ -254,6 +263,9 @@ os.system("mkdir rendered")
 for i, s in enumerate(schedule):
     if s != "Callsign":
         schedule_index += 1
+    if s.startswith("Music"):
+        MUSIC_MINUTES = int(s.split(" ")[1])
+        s = s.split(" ")[0]
 
     session["next"] = session_schedule[schedule_index]
     session["current_index"] = i

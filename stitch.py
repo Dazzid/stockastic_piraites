@@ -8,10 +8,6 @@ import pydub.effects as pbe
 import soundfile as sf
 
 
-def normalize(audio):
-    return audio / np.max(np.abs(audio))
-
-
 if not "complete" in os.listdir():
     os.makedirs("complete")
 
@@ -44,7 +40,12 @@ for p in programs:
         audio += a
 
     program_type = part.split("_")[1]
-    if program_type == "Advertisement" or program_type == "Talk":
+    if (
+        program_type == "Advertisement"
+        or program_type == "Talk"
+        or program_type == "Weather"
+        or program_type == "Disclaimer"
+    ):
         loop = pb.AudioSegment.from_file(f"loops/{random.choice(all_loops)}")
         loop = pbe.normalize(loop)
         loop *= 1 + round(audio.duration_seconds / loop.duration_seconds)
@@ -63,7 +64,7 @@ for p in programs:
 
     complete_audio += audio
 
-complete_audio.export(f"complete/session.mp3", format="mp3")
+complete_audio.export(f"complete/next_session.wav", format="wav")
 
 
 print(programs)
