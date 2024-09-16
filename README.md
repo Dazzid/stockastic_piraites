@@ -1,5 +1,5 @@
 # Welcome to KSPR Stochastic Pirate Radio! 🏴‍☠️🏴‍☠️🏴‍☠️ 🦜
-This is the main repository for the Stochastic Piraites Radio. 
+This is the main repository for the KSPR Stochastic Pirate Radio. 
 
 To download the Mistral model 
 - https://huggingface.co/TheBloke/Mistral-7B-v0.1-GGUF	
