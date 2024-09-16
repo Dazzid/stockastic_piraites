@@ -1,4 +1,4 @@
-# Stochastic PAIrate Radio
+# KSPR Stochastic Pirate Radio 🦜🏴‍☠️
 
 To generate a new session:
 ```
