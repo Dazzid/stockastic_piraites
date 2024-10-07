@@ -118,18 +118,18 @@ def generate_intro(session):
 def generate_weather(session):
     # prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Express temperatures in Celsius. Use the tag <narrator> to specify who the speaker is."
 
-    prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Express temperatures in Celsius. Use the tag <narrator> to specify who the speaker is. Also include the daily recommendations to keep ghosts away."
+    prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Don't use Fahrenheit, but don't specify 'Celsius'. Use the tag <narrator> to specify who the speaker is. Also include the daily recommendations to keep ghosts away."
 
     answer = sample_mistral(prompt)
-    answer = re.sub("\(.*?\):", "", answer)
-    answer = re.sub("\[.*?\]:", "", answer)
-    answer = re.sub("\{.*?\}:", "", answer)
-    answer = re.sub("<.*?>:", "", answer)
+    answer = re.sub("\(.*?\):", " ", answer)
+    answer = re.sub("\[.*?\]:", " ", answer)
+    answer = re.sub("\{.*?\}:", " ", answer)
+    answer = re.sub("<.*?>:", " ", answer)
 
-    answer = re.sub("\(.*?\)", "", answer)
-    answer = re.sub("\[.*?\]", "", answer)
-    answer = re.sub("\{.*?\}", "", answer)
-    answer = re.sub("<.*?>", "", answer)
+    answer = re.sub("\(.*?\)", " ", answer)
+    answer = re.sub("\[.*?\]", " ", answer)
+    answer = re.sub("\{.*?\}", " ", answer)
+    answer = re.sub("<.*?>", " ", answer)
     answer = answer.replace("\n", " ")
 
     return answer
@@ -162,15 +162,15 @@ def generate_news(session):
     prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is Bobby Ghost. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
-    answer = re.sub("\(.*?\):", "", answer)
-    answer = re.sub("\[.*?\]:", "", answer)
-    answer = re.sub("\{.*?\}:", "", answer)
-    answer = re.sub("<.*?>:", "", answer)
+    answer = re.sub("\(.*?\):", " ", answer)
+    answer = re.sub("\[.*?\]:", " ", answer)
+    answer = re.sub("\{.*?\}:", " ", answer)
+    answer = re.sub("<.*?>:", " ", answer)
 
-    answer = re.sub("\(.*?\)", "", answer)
-    answer = re.sub("\[.*?\]", "", answer)
-    answer = re.sub("\{.*?\}", "", answer)
-    answer = re.sub("<.*?>", "", answer)
+    answer = re.sub("\(.*?\)", " ", answer)
+    answer = re.sub("\[.*?\]", " ", answer)
+    answer = re.sub("\{.*?\}", " ", answer)
+    answer = re.sub("<.*?>", " ", answer)
     answer = answer.replace("\n", " ")
 
     return answer
@@ -200,7 +200,6 @@ programs = {
     "Intro": {"function": generate_intro},
     "Weather": {"function": generate_weather},
     "Callsign": {"function": generate_callsign},
-    "Invocation": {"function": generate_invocation},
     "Advertisement": {"function": generate_ad},
     "News": {"function": generate_news},
     "Disclaimer": {"function": generate_disclaimer},
@@ -212,7 +211,6 @@ schedule = [
     "Advertisement",
     "Talk",
     "Music 10",
-    "Invocation",
     "Callsign",
     "Advertisement",
     "News",

@@ -21,6 +21,7 @@ def render_segment(text, speaker="emma", output_path="speech_test.wav"):
             voice_dir="./voices",
             speaker=speaker,
             preset="ultra_fast",
+            verbose=False
         )
     else:
         tts.tts_to_file(
