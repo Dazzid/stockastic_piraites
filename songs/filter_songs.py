@@ -10,10 +10,8 @@ def read_json_files(directory):
             with open(os.path.join(directory, filename), "r", encoding="utf-8") as file:
                 json_data = json.load(file)
                 # Extract required fields
-                if "song_id" in json_data and "lyrics" in json_data:
-                    data.append(
-                        {"song_id": json_data["song_id"], "lyrics": json_data["lyrics"]}
-                    )
+                if "id" in json_data and "prompt" in json_data:
+                    data.append({"id": json_data["id"], "lyrics": json_data["prompt"]})
     return data
 
 
@@ -26,6 +24,7 @@ def json_files_to_dataframe(directory):
 def contains_inappropriate_language(lyrics, explicit_words):
     for word in explicit_words:
         if word in lyrics.lower():
+            # print(word)
             return True
     return False
 
@@ -47,11 +46,17 @@ explicit_words = read_explicit_word_list(explicit_word_path)
 
 
 inappropriate_songs = []
+count = 0
 for index, row in dataframe.iterrows():
     if contains_inappropriate_language(row["lyrics"], explicit_words):
-        inappropriate_songs.append(index)
+        # inappropriate_songs.append(index)
+        os.system(f'rm {directory_path}/{row["id"]}.json')
+        count += 1
+
+print(count)
 
 # open csv
+"""
 csv_metadata = pd.read_csv("./metadata/jamendo/suno.csv")
 names = [
     f"audio/suno/{id}.mp3"
@@ -63,3 +68,4 @@ print(indexes)
 csv_metadata = csv_metadata.drop(indexes)
 print(csv_metadata)
 csv_metadata.to_csv("./metadata/jamendo/filtered_suno.csv")
+"""

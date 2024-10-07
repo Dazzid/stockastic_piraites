@@ -3,11 +3,11 @@ Callsign
 Intro
 Advertisement
 Callsign
-Music 5
+Music 7
 Callsign
 News
 Weather
 Callsign
-Music 5
+Music 7
 Callsign
 Talk

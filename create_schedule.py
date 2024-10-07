@@ -8,6 +8,7 @@ import torch
 import datetime
 import json
 import numpy as np
+import pydub as pb
 from songs.labels import all_labels
 from songs import create_mix
 from transformers import (
@@ -63,15 +64,18 @@ def sample_mistral(prompt):
 
 def generate_talk(session):
     previous = "(TALK 0)\nAnna: Hello Philip!\nPhilip: Hello Anna!\n"
-    prompt = f"Generate a radio conversation of two commenters, Anna and Phillip. They are discussing {session['topic']}. Don't bring more people into the conversation, only two voices. Only refer to them with their names, avoid adding time or other elements. Start with greetings to the audience. The conversation should contain at least 1000 words. Following are earlier conversations from today {session['date']}. Avoid reusing the same topics, but reference what they said.\n(PREVIOUS CONVERSATIONS)\n{previous}\n(END OF PREVIOUS CONVERSATIONS).\nUse the tags 'Philip:' and 'Anna:' to indicate who is speaking. Introduce what is coming next, which is {session['next']}"
+    prompt = f"Generate a radio conversation of two commenters, Anna and Phillip. They are discussing {session['topic']}. Don't bring more people into the conversation, only two voices. Only refer to them with their names, avoid adding time or other elements. Start with greetings to the audience. The conversation should contain at least 1000 words. Following are earlier conversations from today {session['date']}. Avoid reusing the same topics, but reference what they said.\n(PREVIOUS CONVERSATIONS)\n{previous}\n(END OF PREVIOUS CONVERSATIONS).\nUse the tags 'Philip:' and 'Anna:' to indicate who is speaking. You can use '(mumbles)' to indicate a character mumbling and '(laughs)' to indicate a character laughing. At the end of the segment, introduce what is coming next, which is {session['next']}."
 
     answer = sample_mistral(prompt)
+
+    answer = answer.replace("(mumbles)", "mmmmmh...")
+    answer = answer.replace("(laughs)", "ahahahah")
 
     answer = re.sub("\(.*?\)", "", answer)
     answer = re.sub("\[.*?\]", "", answer)
     answer = re.sub("\{.*?\}", "", answer)
     answer = re.sub("<.*?>", "", answer)
-    answer = answer.replace("\n", "")
+    answer = answer.replace("\n", " ")
     answer = answer.replace("Anna:", "\nAnna:")
     answer = answer.replace("Philip:", "\nPhilip:")
 
@@ -92,7 +96,9 @@ def generate_music(session):
 
 
 def generate_intro(session):
-    prompt = f"You are a radio conductor. Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. You are \"The Radio Guy\". Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. The segment should be 1 minute long and in English. Introduce the next segment, which is {session['next']}. Use the tag <narrator> to specify who the speaker is."
+    # prompt = f"You are a radio conductor. Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. You are \"The Radio Guy\". Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is."
+
+    prompt = f"You are a radio conductor and you are \"Jack O'Lantern\". Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}, and wish your audience a spooky october. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -104,13 +110,15 @@ def generate_intro(session):
     answer = re.sub("\[.*?\]", "", answer)
     answer = re.sub("\{.*?\}", "", answer)
     answer = re.sub("<.*?>", "", answer)
-    answer = answer.replace("\n", "")
+    answer = answer.replace("\n", " ")
 
     return answer
 
 
 def generate_weather(session):
-    prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Express temperatures in Celsius. Use the tag <narrator> to specify who the speaker is."
+    # prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Express temperatures in Celsius. Use the tag <narrator> to specify who the speaker is."
+
+    prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Express temperatures in Celsius. Use the tag <narrator> to specify who the speaker is. Also include the daily recommendations to keep ghosts away."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -122,7 +130,7 @@ def generate_weather(session):
     answer = re.sub("\[.*?\]", "", answer)
     answer = re.sub("\{.*?\}", "", answer)
     answer = re.sub("<.*?>", "", answer)
-    answer = answer.replace("\n", "")
+    answer = answer.replace("\n", " ")
 
     return answer
 
@@ -132,16 +140,11 @@ def generate_callsign(session):
     jingle = f'jingles/{random.choice(os.listdir("jingles"))}'
     shutil.copyfile(jingle, f"rendered/{number}_Callsign_0.wav")
 
+
 def generate_disclaimer(session):
     number = session["current_index"]
-    disclaimer = f'complete/disclaimer.wav'
+    disclaimer = f"complete/disclaimer.wav"
     shutil.copyfile(disclaimer, f"rendered/{number}_Disclaimer_0.wav")
-
-
-def generate_invocation(session):
-    # generate intro
-    # generate invocation
-    pass
 
 
 def generate_news(session):
@@ -154,7 +157,9 @@ def generate_news(session):
         [f"{e['published']} - {e['title']}\n{e['summary']}" for e in feed["entries"]]
     )
 
-    prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is The News Guy. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
+    #prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is The News Guy. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
+
+    prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is Bobby Ghost. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -166,13 +171,13 @@ def generate_news(session):
     answer = re.sub("\[.*?\]", "", answer)
     answer = re.sub("\{.*?\}", "", answer)
     answer = re.sub("<.*?>", "", answer)
-    answer = answer.replace("\n", "")
+    answer = answer.replace("\n", " ")
 
     return answer
 
 
 def generate_ad(session):
-    prompt = f"Create an advertisement for a fictional product in a radio program. State the product name and what it can be used for. You can include price, contact information, slogans as you wish. Make the ad relevant to the day's topic, which is {session['topic']}. The advertisement should be in English and at most 1 minute long. Use the tag <narrator> to specify who the speaker is."
+    prompt = f"Create an advertisement for a fictional product in a radio program. State the product name and what it can be used for. You can include price, contact information, slogans as you wish. Make the ad relevant to the day's topic, which is {session['topic']}. The advertisement should be in English and at most 100 words long. Use the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -184,7 +189,7 @@ def generate_ad(session):
     answer = re.sub("\[.*?\]", "", answer)
     answer = re.sub("\{.*?\}", "", answer)
     answer = re.sub("<.*?>", "", answer)
-    answer = answer.replace("\n", "")
+    answer = answer.replace("\n", " ")
 
     return answer
 
@@ -228,8 +233,18 @@ schedule = [
 with open("schedule.txt", "r") as f:
     schedule = list(filter(None, f.read().split("\n")))
 
+
+# half an hour
+session_delay = 30 * 60
+if "current_session.wav" in os.listdir("complete/"):
+    # use length of current session
+    # account for 1 min stream delay too
+    session_delay = pb.AudioSegment.from_file(
+        f"complete/current_session.wav"
+    ).duration_seconds + 1
+
 date = datetime.datetime.now()
-scheduled_in = datetime.timedelta(minutes=30)
+scheduled_in = datetime.timedelta(seconds=session_delay)
 session_date = date + scheduled_in
 
 with open("topics.txt", "r") as f:
@@ -237,7 +252,7 @@ with open("topics.txt", "r") as f:
 
 session = {
     "date": f"{session_date.strftime('%A %d %B %Y')}",
-    "time": f"{session_date.strftime('%H')}:00",
+    "time": session_date.strftime("%H:%M"),
     "topic": random.choice(topics),
     "genre": random.choice(styles),
     "talks": [],

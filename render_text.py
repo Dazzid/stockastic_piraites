@@ -28,7 +28,7 @@ def render_segment(text, speaker="emma", output_path="speech_test.wav"):
         )
 
 
-# intro & weather
+# intro
 speaker_0 = []
 # ads
 speaker_1 = []
@@ -36,6 +36,9 @@ speaker_1 = []
 speaker_2 = []
 # philip
 speaker_3 = []
+# weather and news
+speaker_4 = []
+
 # open all files
 files = os.listdir("session")
 files.sort(key=lambda x: int(x.split("_")[0]))
@@ -48,7 +51,7 @@ for file in files:
     program = file.split(".")[0].split("_")[-1]
 
     obj = (number, program, data, 0)
-    if program == "Intro" or program == "Weather" or program == 'News':
+    if program == "Intro":
         speaker_0.append(obj)
     elif program == "Advertisement":
         speaker_1.append(obj)
@@ -59,12 +62,14 @@ for file in files:
                 speaker_2.append(obj)
             elif line.startswith("Philip:"):
                 speaker_3.append(obj)
+    elif program == "Weather" or program == 'News':
+        speaker_4.append(obj)
 
 for s in speaker_0:
     text = s[2].replace("?", "?\n").replace("!", "!\n")
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
     if use_tortoise:
-        render_segment(text, speaker="daniel", output_path=name)
+        render_segment(text, speaker="kspr_intro", output_path=name)
     else:
         render_segment(text, speaker="Craig Gutsy", output_path=name)
 
@@ -72,7 +77,7 @@ for s in speaker_1:
     text = s[2].replace("?", "?\n").replace("!", "!\n")
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
     if use_tortoise:
-        render_segment(text, speaker="halle", output_path=name)
+        render_segment(text, speaker="kspr_ad", output_path=name)
     else:
         render_segment(text, speaker="Chandra MacFarland", output_path=name)
 
@@ -80,7 +85,7 @@ for s in speaker_2:
     text = s[2].replace("Anna:", "").replace("?", "?\n").replace("!", "!\n")
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
     if use_tortoise:
-        render_segment(text, speaker="emma", output_path=name)
+        render_segment(text, speaker="kspr_anna", output_path=name)
     else:
         render_segment(text, speaker="Lilya Stainthorpe", output_path=name)
 
@@ -88,6 +93,14 @@ for s in speaker_3:
     text = s[2].replace("Philip:", "").replace("?", "?\n").replace("!", "!\n")
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
     if use_tortoise:
-        render_segment(text, speaker="tom", output_path=name)
+        render_segment(text, speaker="kspr_philip", output_path=name)
     else:
         render_segment(text, speaker="Torcull Diarmuid", output_path=name)
+
+for s in speaker_4:
+    text = s[2].replace("?", "?\n").replace("!", "!\n")
+    name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
+    if use_tortoise:
+        render_segment(text, speaker="kspr_news_weather", output_path=name)
+    else:
+        render_segment(text, speaker="Craig Gutsy", output_path=name)

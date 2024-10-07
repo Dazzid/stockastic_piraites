@@ -6,9 +6,10 @@ from essentia.standard import (
 import os
 import pandas as pd
 import numpy as np
-from labels import labels_jamendo as labels
+from labels import all_labels
 import argparse
 
+labels = all_labels["jamendo"]
 
 embedding_model = TensorflowPredictEffnetDiscogs(
     graphFilename="models/discogs-effnet-bs64-1.pb", output="PartitionedCall:1"
@@ -27,11 +28,13 @@ model = TensorflowPredict2D(
 )
 
 
-metadata_folders = os.listdir("metadata")
+metadata_folders = os.listdir("metadata/jamendo")
 for folder in os.listdir("audio"):
     dataframe = {l: [] for l in labels}
     dataframe["path"] = []
     dataframe["duration"] = []
+    if f"{folder}.csv" in metadata_folders:
+        continue
     for audio in os.listdir(f"audio/{folder}"):
         file = f"audio/{folder}/{audio}"
         dataframe["path"].append(file)
@@ -46,4 +49,4 @@ for folder in os.listdir("audio"):
         for i, l in zip(range(len(predictions)), labels):
             dataframe[l].append(predictions[i])
     dataframe = pd.DataFrame(dataframe)
-    dataframe.to_csv(f"metadata/{folder}.csv")
+    dataframe.to_csv(f"metadata/jamendo/{folder}.csv")

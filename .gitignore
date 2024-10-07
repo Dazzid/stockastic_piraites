@@ -7,3 +7,4 @@ session/*
 rendered/*
 complete/*
 songs/metadata/json/*
+archive/*
