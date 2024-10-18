@@ -4,7 +4,6 @@ import pydub.effects as pbe
 import os
 import numpy as np
 import argparse
-from .labels import all_labels
 
 
 def softmax(x):
@@ -15,7 +14,6 @@ def softmax(x):
 
 def main(args):
     classification = args["classes"]
-    labels = all_labels[classification]
     metadata = pd.DataFrame()
     for file in os.listdir(f"{args['metadata_dir']}/{classification}/"):
         if not ".csv" in file:
@@ -63,6 +61,5 @@ if __name__ == "__main__":
 
     assert args["length"] > 0
     assert args["fade_duration"] > 0
-    assert args["genre"] in all_labels[args["classes"]]
 
     main(args)
