@@ -96,9 +96,9 @@ def generate_music(session):
 
 
 def generate_intro(session):
-    # prompt = f"You are a radio conductor. Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. You are \"The Radio Guy\". Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is."
+    prompt = f"You are a radio conductor. Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. You are \"Uncle Scrooge\". Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is. This is a continuos segment without breaks. Anything you announce will be played AFTER this segment, so do not include any breaks.\nExample: <narrator> Welcome listeners!"
 
-    prompt = f"You are a radio conductor and you are \"Jack O'Lantern\". Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}, and wish your audience a spooky october. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is."
+    # prompt = f"You are a radio conductor and you are \"Jack O'Lantern\". Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}, and wish your audience a spooky october. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
@@ -118,7 +118,9 @@ def generate_intro(session):
 def generate_weather(session):
     # prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Express temperatures in Celsius. Use the tag <narrator> to specify who the speaker is."
 
-    prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Don't use Fahrenheit, but don't specify 'Celsius'. Use the tag <narrator> to specify who the speaker is. Also include the daily recommendations to keep ghosts away."
+    prompt = f"Create a weather forecast for a radio program. You are \"The Grinch\". Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Don't use Fahrenheit, but don't specify 'Celsius'. Use the tag <narrator> to specify who the speaker is. Also include the daily recommendations on how to steal Christmas."
+
+    # prompt = f"Create a weather forecast for a radio program. Today is {session['date']}. State the weather for today and for the upcoming days. The segment should be in English and at most 3 minutes long. Don't use Fahrenheit, but don't specify 'Celsius'. Use the tag <narrator> to specify who the speaker is. Also include the daily recommendations to keep ghosts away."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", " ", answer)
@@ -157,9 +159,9 @@ def generate_news(session):
         [f"{e['published']} - {e['title']}\n{e['summary']}" for e in feed["entries"]]
     )
 
-    #prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is The News Guy. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
+    prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. You News Guy. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
 
-    prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is Bobby Ghost. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
+    # prompt = f"You are presenting the news as part of a radio program. The program is called Today's News. Your name is Bobby Ghost. Today is {session['date']}. Present and discuss the following news:\n{news}\nUse the tag <narrator> to specify who the speaker is."
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", " ", answer)
@@ -194,6 +196,33 @@ def generate_ad(session):
     return answer
 
 
+def generate_spam_music(session):
+
+    with open("spam_folder_context.txt", "r") as f:
+        context = f.read()
+
+    number = session["current_index"]
+    folder = "songs/audio/music_from_the_spam_folder"
+    song_name = f"{folder}/{random.choice(os.listdir(folder))}"
+    shutil.copyfile(song_name, f"rendered/{number}_SpamMusic_1.mp3")
+
+    prompt = f'Generate a radio program about the album "Music from the spam folder". Use the tag <narrator> to specify who the speaker is. At the very end, introduce the song "{song_name}" and end the program.\n{context}'
+
+    answer = sample_mistral(prompt)
+    answer = re.sub("\(.*?\):", "", answer)
+    answer = re.sub("\[.*?\]:", "", answer)
+    answer = re.sub("\{.*?\}:", "", answer)
+    answer = re.sub("<.*?>:", "", answer)
+
+    answer = re.sub("\(.*?\)", "", answer)
+    answer = re.sub("\[.*?\]", "", answer)
+    answer = re.sub("\{.*?\}", "", answer)
+    answer = re.sub("<.*?>", "", answer)
+    answer = answer.replace("\n", " ")
+
+    return answer
+
+
 programs = {
     "Music": {"function": generate_music},
     "Talk": {"function": generate_talk},
@@ -203,6 +232,7 @@ programs = {
     "Advertisement": {"function": generate_ad},
     "News": {"function": generate_news},
     "Disclaimer": {"function": generate_disclaimer},
+    "SpamMusic": {"function": generate_spam_music},
 }
 
 schedule = [
@@ -237,9 +267,9 @@ session_delay = 30 * 60
 if "current_session.wav" in os.listdir("complete/"):
     # use length of current session
     # account for 1 min stream delay too
-    session_delay = pb.AudioSegment.from_file(
-        f"complete/current_session.wav"
-    ).duration_seconds + 1
+    session_delay = (
+        pb.AudioSegment.from_file(f"complete/current_session.wav").duration_seconds + 1
+    )
 
 date = datetime.datetime.now()
 scheduled_in = datetime.timedelta(seconds=session_delay)
@@ -294,5 +324,6 @@ for i, s in enumerate(schedule):
 
     if generation is None:
         continue
+
     with open(f"session/{i}_{s}.txt", "w") as file:
         file.write(generation)

@@ -21,7 +21,7 @@ def render_segment(text, speaker="emma", output_path="speech_test.wav"):
             voice_dir="./voices",
             speaker=speaker,
             preset="ultra_fast",
-            verbose=False
+            verbose=False,
         )
     else:
         tts.tts_to_file(
@@ -39,6 +39,10 @@ speaker_2 = []
 speaker_3 = []
 # weather and news
 speaker_4 = []
+# bob
+speaker_5 = []
+# grinch
+speaker_6 = []
 
 # open all files
 files = os.listdir("session")
@@ -63,14 +67,18 @@ for file in files:
                 speaker_2.append(obj)
             elif line.startswith("Philip:"):
                 speaker_3.append(obj)
-    elif program == "Weather" or program == 'News':
+    elif program == "Weather":
+        speaker_6.append(obj)
+    elif program == "News":
         speaker_4.append(obj)
+    elif program == "SpamMusic":
+        speaker_5.append(obj)
 
 for s in speaker_0:
     text = s[2].replace("?", "?\n").replace("!", "!\n")
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
     if use_tortoise:
-        render_segment(text, speaker="kspr_intro", output_path=name)
+        render_segment(text, speaker="kspr_scrooge", output_path=name)
     else:
         render_segment(text, speaker="Craig Gutsy", output_path=name)
 
@@ -103,5 +111,21 @@ for s in speaker_4:
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
     if use_tortoise:
         render_segment(text, speaker="kspr_news_weather", output_path=name)
+    else:
+        render_segment(text, speaker="Craig Gutsy", output_path=name)
+
+for s in speaker_5:
+    text = s[2].replace("?", "?\n").replace("!", "!\n")
+    name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
+    if use_tortoise:
+        render_segment(text, speaker="kspr_bob", output_path=name)
+    else:
+        render_segment(text, speaker="Craig Gutsy", output_path=name)
+
+for s in speaker_6:
+    text = s[2].replace("?", "?\n").replace("!", "!\n")
+    name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
+    if use_tortoise:
+        render_segment(text, speaker="kspr_grinch", output_path=name)
     else:
         render_segment(text, speaker="Craig Gutsy", output_path=name)

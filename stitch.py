@@ -11,7 +11,7 @@ import soundfile as sf
 if not "complete" in os.listdir():
     os.makedirs("complete")
 
-SAMPLE_RATE = 24000
+SAMPLE_RATE = 41000
 
 files = os.listdir("./rendered")
 files.sort(key=lambda x: int(x.split("_")[0]))
@@ -54,7 +54,7 @@ for p in programs:
             ramp_duration
         )
         audio_after_ramp = loop[start_time + ramp_duration :]
-        audio_half_volume = audio_after_ramp - 14
+        audio_half_volume = audio_after_ramp - 16
         background = audio_before_ramp + audio_ramp + audio_half_volume
 
         audio = pb.AudioSegment.silent(duration=start_time + ramp_duration) + audio
