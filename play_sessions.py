@@ -13,46 +13,38 @@ children = {}
 
 def play(audio="test.mp3", image="image.png", loop=False):
     global args
-    command = [
-        "ffmpeg",
-        "-stream_loop",
-        "-1",
-        "-i",
-        image,
-        "-i",
-        audio,
-        "-c:v",
-        "libx264",
-        "-b:v",
-        "12000k",
-        "-preset",
-        "veryfast",
-        "-maxrate",
-        "13500k",
-        "-bufsize",
-        "27000k",
-        "-pix_fmt",
-        "yuv420p",
-        "-g",
-        "50",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "160k",
-        "-ar",
-        "48000",
-        "-shortest",
-        "-f",
-        "flv",
-        "-loglevel",
-        "error",
-        args.stream_url,
+
+    ffmpeg_command = [
+    "ffmpeg",
+    "-stream_loop", "-1",         # Loop video
+    "-re",                        # Read input at real-time speed
+    "-i", image,       # Video input
+    "-stream_loop", "-1",         # Loop audio
+    "-re",
+    "-i", audio,            # Audio input
+    "-c:v", "libx264",            # Video codec
+    "-preset", "veryfast",        # Preset for faster encoding
+    "-maxrate", "3000k",          # Maximum video bitrate
+    "-bufsize", "6000k",          # Buffer size
+    "-pix_fmt", "yuv420p",        # Pixel format
+    "-g", "50",                   # Keyframe interval
+    "-c:a", "aac",                # Audio codec
+    "-b:a", "160k",               # Audio bitrate
+    "-ar", "44100",               # Audio sampling rate
+    "-f", "flv",                  # Output format
+        args.stream_url
     ]
+
+
     if not loop:
         # -stream_loop
         command.pop(1)
         # 1
         command.pop(1)
+        # -stream_loop
+        command.pop(4)
+        # 1
+        command.pop(4)
 
     print(command)
     return subprocess.Popen(command, shell=False)
