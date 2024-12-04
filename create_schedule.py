@@ -96,7 +96,7 @@ def generate_music(session):
 
 
 def generate_intro(session):
-    prompt = f"You are a radio conductor. Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. You are \"Uncle Scrooge\". Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is. This is a continuos segment without breaks. Anything you announce will be played AFTER this segment, so do not include any breaks.\nExample: <narrator> Welcome listeners!"
+    prompt = f"You are a radio conductor. Write the initial segment of a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. You name is \"Uncle Scrooge\". Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, introduce the next program, which is {session['next']}. Do not exceed 200 words. Use the tag <narrator> to specify who the speaker is. DO NOT INCLUDE ANY SORT OF SPONSOR OR MUSIC BREAK. THIS IS OF VITAL IMPORTANCE.\nExample: <narrator> Welcome listeners! Today we will talk about cars. Next, stay tuned for our sponsors and after that, our selection of metal music. Stay Stochastic!"
 
     # prompt = f"You are a radio conductor and you are \"Jack O'Lantern\". Introduce a radio program called 'Stochastic Pairate Radio'. Today is {session['date']}, time is {session['time']}. Introduce yourself and introduce the day's topic, which is {session['topic']}. Introduce what music we'll listen to today, which is {session['genre']} music. Finally, the next segment, which is {session['next']}, and wish your audience a spooky october. The segment should be 1 minute long and in English. Use the tag <narrator> to specify who the speaker is."
 
@@ -206,7 +206,7 @@ def generate_spam_music(session):
     song_name = f"{folder}/{random.choice(os.listdir(folder))}"
     shutil.copyfile(song_name, f"rendered/{number}_SpamMusic_1.mp3")
 
-    prompt = f'Generate a radio program about the album "Music from the spam folder". Use the tag <narrator> to specify who the speaker is. At the very end, introduce the song "{song_name}" and end the program.\n{context}'
+    prompt = f'Generate a radio program about the album "Music from the spam folder". Use the tag <narrator> to specify who the speaker is. At the very end, introduce the song "{song_name}", before signing off. Do not include any breaks or interruptions, the song will play directly AFTER your segment. Make the segment at most 50 words long. Include the line "Find more info at bobltsturm.bandcamp.com". Here is the required context: \n{context}'
 
     answer = sample_mistral(prompt)
     answer = re.sub("\(.*?\):", "", answer)
