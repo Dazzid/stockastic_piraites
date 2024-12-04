@@ -202,7 +202,7 @@ def generate_spam_music(session):
         context = f.read()
 
     number = session["current_index"]
-    folder = "songs/audio/music_from_the_spam_folder"
+    folder = "songs/music_from_the_spam_folder"
     song_name = f"{folder}/{random.choice(os.listdir(folder))}"
     shutil.copyfile(song_name, f"rendered/{number}_SpamMusic_1.mp3")
 
