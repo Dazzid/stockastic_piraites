@@ -10,51 +10,57 @@ args = parser.parse_args()
 
 children = {}
 
-
 def play(audio="test.mp3", image="image.png", loop=False):
     global args
-
-    ffmpeg_command = [
-    "ffmpeg",
-    "-stream_loop", "-1",         # Loop video
-    "-re",                        # Read input at real-time speed
-    "-i", image,       # Video input
-    "-stream_loop", "-1",         # Loop audio
-    "-re",
-    "-i", audio,            # Audio input
-    "-c:v", "libx264",            # Video codec
-    "-preset", "veryfast",        # Preset for faster encoding
-    "-maxrate", "3000k",          # Maximum video bitrate
-    "-bufsize", "6000k",          # Buffer size
-    "-pix_fmt", "yuv420p",        # Pixel format
-    "-g", "50",                   # Keyframe interval
-    "-c:a", "aac",                # Audio codec
-    "-b:a", "160k",               # Audio bitrate
-    "-ar", "44100",               # Audio sampling rate
-    "-f", "flv",                  # Output format
-        args.stream_url
+    command = [
+        "ffmpeg",
+        "-loop",
+        "1",
+        "-i",
+        image,
+        "-re",
+        "-stream_loop",
+        "1",
+        "-i",
+        audio,
+        "-c:v",
+        "libx264",
+        "-b:v",
+        "12000k",
+        "-preset",
+        "veryfast",
+        "-maxrate",
+        "13500k",
+        "-bufsize",
+        "27000k",
+        "-pix_fmt",
+        "yuv420p",
+        "-g",
+        "50",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "160k",
+        "-ar",
+        "48000",
+        "-shortest",
+        "-f",
+        "flv",
+        "-loglevel",
+        "error",
+        args.stream_url,
     ]
-
-
     if not loop:
         # -stream_loop
-        command.pop(1)
+        command.pop(6)
         # 1
-        command.pop(1)
-        # -stream_loop
-        command.pop(4)
-        # 1
-        command.pop(4)
+        command.pop(6)
 
     print(command)
     return subprocess.Popen(command, shell=False)
 
 
 try:
-    background_image = "complete/kspr.png"
-    if "kspr.mp4" in os.listdir("complete"):
-        background_image = "complete/kspr.mp4"
-
     if "next_session.wav" not in os.listdir("complete"):
         print("Generating first session")
         generator_proc = subprocess.Popen(["sh", "radio.sh"], shell=False)
@@ -62,7 +68,7 @@ try:
 
         # play emergency session
         emergency_proc = play(
-            audio="complete/emergency.wav", image=background_image, loop=True
+            audio="complete/emergency.wav", image="complete/kspr.png", loop=True
         )
         children[emergency_proc.pid] = emergency_proc
 
@@ -78,10 +84,8 @@ try:
         os.rename("complete/next_session.wav", "complete/current_session.wav")
 
         print("Playing...")
-        # player_proc = subprocess.Popen(["aplay", "complete/current_session.wav", "--device", device], shell=False)
-        player_proc = play(
-            audio="complete/current_session.wav", image=background_image
-        )
+        #player_proc = subprocess.Popen(["aplay", "complete/current_session.wav", "--device", device], shell=False)
+        player_proc = play(audio="complete/current_session.wav", image="complete/kspr.png")
         children[player_proc.pid] = player_proc
 
         print("Generating new session...")
@@ -116,7 +120,7 @@ try:
             # emergency music
             # emergency_proc = subprocess.Popen( ["aplay", "complete/emergency.wav", "--device", device], shell=False)
             emergency_proc = play(
-                audio="complete/emergency.wav", image=background_image, loop=True
+                audio="complete/emergency.wav", image="complete/kspr.png", loop=True
             )
             children[emergency_proc.pid] = emergency_proc
 
@@ -141,3 +145,5 @@ finally:
     for proc in children.values():
         print("Killing ", proc.pid)
         proc.kill()
+
+

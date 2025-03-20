@@ -68,7 +68,7 @@ for file in files:
             elif line.startswith("Philip:"):
                 speaker_3.append(obj)
     elif program == "Weather":
-        speaker_6.append(obj)
+        speaker_4.append(obj)
     elif program == "News":
         speaker_4.append(obj)
     elif program == "SpamMusic":
@@ -122,6 +122,7 @@ for s in speaker_5:
     else:
         render_segment(text, speaker="Craig Gutsy", output_path=name)
 
+'''
 for s in speaker_6:
     text = s[2].replace("?", "?\n").replace("!", "!\n")
     name = f"rendered/{s[0]}_{s[1]}_{s[3]}.wav"
@@ -129,3 +130,4 @@ for s in speaker_6:
         render_segment(text, speaker="kspr_grinch", output_path=name)
     else:
         render_segment(text, speaker="Craig Gutsy", output_path=name)
+'''
